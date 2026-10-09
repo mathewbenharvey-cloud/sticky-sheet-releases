@@ -1,0 +1,19 @@
+{
+  "version": "0.2.26",
+  "notes": "Check for Updates in Main Menu, optional startup checks, verified release downloads, and local backups before installation. Includes the consolidated draggable menus, small/large presets, Excel import/export, sorting, frozen headers and the Windows border fix.",
+  "pub_date": "2026-10-09T08:45:29.159Z",
+  "platforms": {
+    "windows-x86_64": {
+      "url": "https://github.com/mathewbenharvey-cloud/sticky-sheet-releases/releases/download/v0.2.26-alpha/Sticky-Sheet-0.2.26-Alpha-Windows-x64-setup.exe",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUUXdybkF0d054Vm5MZkdXclZzOENwWWJjN2dzYXlGRjcxVTZldjY4L2FxMTRZc2hDaFFWZGFlODFSclkwakhpbmwrREc1bFhja1dFbCtMcEtDcVkxWGZnNzRqamtPM3dJPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzkxNTM1MjY3CWZpbGU6U3RpY2t5IFNoZWV0IEFscGhhXzAuMi4yNl94NjQtc2V0dXAuZXhlCXZlcnNpb246MC4yLjI2CmJDL3JPcXdLdng2TWttVHJxVDRKV0RpYTFlV3pqZWUrOFdDaEdqcHdZRFgvRHlFZ0JhaTV2SDBNOVBUaHlRZGNBdmZDczhLSVJCQVRvNkRFbFNmOUF3PT0K"
+    },
+    "darwin-aarch64": {
+      "url": "https://github.com/mathewbenharvey-cloud/sticky-sheet-releases/releases/download/v0.2.26-alpha/Sticky-Sheet-0.2.26-Alpha-mac-arm64.app.tar.gz",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUUXdybkF0d054VnYxQzlUTU9WQ1UxYWxGOXkrbDd0RVhHUlVUM1RDRlRPRnZwbkNYb1hrcTlabVlKaUZoVHJkSS93NDNlTXdIZVhsN21oSW03bU5oVksrd2RnMGY1bndFPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzkxNTM0ODMxCWZpbGU6U3RpY2t5IFNoZWV0IEFscGhhLmFwcC50YXIuZ3oJdmVyc2lvbjowLjIuMjYKYnJodHJqc3ZqVkVxVFpDV1pOWXVUNy9Oc2RNQmpDRVVyMHMxZzAyRERMQWxMYXF3a2FZamR4b1RNN0loa1VxVHE1WEI0VWlneXI3akJhSzFrcHlBQWc9PQo="
+    },
+    "darwin-x86_64": {
+      "url": "https://github.com/mathewbenharvey-cloud/sticky-sheet-releases/releases/download/v0.2.26-alpha/Sticky-Sheet-0.2.26-Alpha-mac-x64.app.tar.gz",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUUXdybkF0d054VmxkQ0NhN1BXdWFXaE1OMCtzRzZPUjNsTHZLbk41aEJQUG9xYXgxOWRoeWt2Mnk5NVNkK2FJeVMzZStuNHY4U01EUnN5SkVFUEhvQ1NmZ1NPZEdEUGdzPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzkxNTM1MjU4CWZpbGU6U3RpY2t5IFNoZWV0IEFscGhhLmFwcC50YXIuZ3oJdmVyc2lvbjowLjIuMjYKTE43bGdtVloyYUIrYldyd1N6T3RtMitxa1UrU2lLeUY0YTk1YXJSbEZ2bXFkZDVualdtVUNPQnVHYnZpVDE5TjY1ZUd2MFM3ck9EcmdTbmpjbStGREE9PQo="
+    }
+  }
+}
