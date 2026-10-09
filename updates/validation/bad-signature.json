@@ -1,0 +1,19 @@
+{
+  "version": "0.2.26",
+  "notes": "Check for Updates in Main Menu, optional startup checks, verified release downloads, and local backups before installation. Includes the consolidated draggable menus, small/large presets, Excel import/export, sorting, frozen headers and the Windows border fix.",
+  "pub_date": "2026-10-09T08:45:29.159Z",
+  "platforms": {
+    "windows-x86_64": {
+      "url": "https://github.com/mathewbenharvey-cloud/sticky-sheet-releases/releases/download/v0.2.26-alpha/Sticky-Sheet-0.2.26-Alpha-Windows-x64-setup.exe",
+      "signature": "aW52YWxpZCBzaWduYXR1cmUgZml4dHVyZQ=="
+    },
+    "darwin-aarch64": {
+      "url": "https://github.com/mathewbenharvey-cloud/sticky-sheet-releases/releases/download/v0.2.26-alpha/Sticky-Sheet-0.2.26-Alpha-mac-arm64.app.tar.gz",
+      "signature": "aW52YWxpZCBzaWduYXR1cmUgZml4dHVyZQ=="
+    },
+    "darwin-x86_64": {
+      "url": "https://github.com/mathewbenharvey-cloud/sticky-sheet-releases/releases/download/v0.2.26-alpha/Sticky-Sheet-0.2.26-Alpha-mac-x64.app.tar.gz",
+      "signature": "aW52YWxpZCBzaWduYXR1cmUgZml4dHVyZQ=="
+    }
+  }
+}
