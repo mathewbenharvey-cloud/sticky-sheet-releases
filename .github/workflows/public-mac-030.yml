@@ -1,0 +1,90 @@
+name: Mac conditional-formatting and tour test 0.2.30
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: mac-conditional-tour-030
+  cancel-in-progress: false
+jobs:
+  macos:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-15
+            arch: arm64
+          - os: macos-15-intel
+            arch: x64
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    env:
+      CI: 'true'
+      MACOSX_DEPLOYMENT_TARGET: '14.0'
+      SOURCE_SHA256: df0e217e937e7737b9367a31209072402c376d9acf175bbb052c346bd7917fbb
+      SOURCE_COMMIT: 3fe5aa266ce3f748ffac8dfcefd3fb5e1a8fd4e2
+      STICKY_SOURCE_ARCHIVE: ${{ github.workspace }}/source.zip
+    defaults:
+      run:
+        working-directory: Sticky-Sheet-0.2.30
+    steps:
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+      - name: Download and verify corresponding GPL source
+        working-directory: .
+        run: |
+          curl -L --fail --retry 3 'https://github.com/mathewbenharvey-cloud/sticky-sheet-releases/releases/download/v0.2.30-test.2/Sticky-Sheet-0.2.30-source.zip' -o source.zip
+          echo "$SOURCE_SHA256  source.zip" | shasum -a 256 -c -
+          tar -xf source.zip
+      - run: rustup default stable
+      - uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830
+        id: rust_cache
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            Sticky-Sheet-0.2.30/src-tauri/target
+          key: public-mac-${{ matrix.arch }}-${{ env.SOURCE_SHA256 }}
+          restore-keys: public-mac-${{ matrix.arch }}-
+      - run: npm ci
+      - run: npm audit --audit-level=high
+      - run: node scripts/build-core.mjs
+      - run: npm test
+      - run: npm run build
+      - name: Exercise shared editor in WebKit
+        env:
+          STICKY_TEST_BROWSER: webkit
+        run: |
+          npx playwright install webkit
+          node tests/formula-browser.mjs
+          node tests/storage-ui.mjs
+          node tests/tools-browser.mjs
+          node tests/updates-ui.mjs
+          node tests/sort-shortcut-ui.mjs
+          node tests/appearance-colors-ui.mjs
+          node tests/conditional-tour-ui.mjs
+      - name: Build native Mac application without private signing keys
+        id: native_build
+        run: |
+          node --input-type=module -e "import{readFileSync,writeFileSync,mkdirSync}from'node:fs';import assert from'node:assert/strict';const source=JSON.parse(readFileSync('SOURCE-MANIFEST.json'));assert.equal(source.commit,process.env.SOURCE_COMMIT);assert.equal(source.version,'0.2.30');const override={bundle:{createUpdaterArtifacts:false}};writeFileSync('testing-build.json',JSON.stringify(override));mkdirSync('test-results',{recursive:true});writeFileSync('test-results/build-info.json',JSON.stringify({sourceCommit:source.commit,sourceArchiveSHA256:process.env.SOURCE_SHA256,override,notes:'Manual testing build. Apple ad-hoc signature; not notarized. No updater signature or website/feed publication.'},null,2));"
+          node node_modules/@tauri-apps/cli/tauri.js build --config testing-build.json -- --locked
+      - run: cargo test --release --manifest-path src-tauri/Cargo.toml --locked
+      - uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830
+        if: steps.rust_cache.outputs.cache-hit != 'true'
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            Sticky-Sheet-0.2.30/src-tauri/target
+          key: public-mac-${{ matrix.arch }}-${{ env.SOURCE_SHA256 }}
+      - name: Install from DMG and check native persistence, corners and recovery
+        run: node scripts/package-tauri-mac.mjs ${{ matrix.arch }}
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        if: always()
+        with:
+          name: sticky-sheet-mac-030-${{ matrix.arch }}
+          path: |
+            Sticky-Sheet-0.2.30/release/tauri-mac-${{ matrix.arch }}/**
+            Sticky-Sheet-0.2.30/test-results/**
+          retention-days: 14
