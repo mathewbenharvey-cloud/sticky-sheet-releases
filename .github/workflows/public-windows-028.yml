@@ -45,6 +45,7 @@ jobs:
       - run: npm run build
       - run: node tests/appearance-colors-ui.mjs
       - run: node tests/sort-shortcut-ui.mjs
+      - run: node --import tsx tests/xlsx-fixture.ts
       - name: Build testing installer without private signing secrets
         run: |
           node --input-type=module -e "import{readFileSync,writeFileSync,mkdirSync}from'node:fs';import assert from'node:assert/strict';const source=JSON.parse(readFileSync('SOURCE-MANIFEST.json'));assert.equal(source.commit,process.env.SOURCE_COMMIT);assert.equal(source.version,'0.2.28');const override={bundle:{createUpdaterArtifacts:false}};writeFileSync('testing-build.json',JSON.stringify(override));mkdirSync('test-results',{recursive:true});writeFileSync('test-results/build-info.json',JSON.stringify({sourceCommit:source.commit,sourceArchiveSHA256:process.env.SOURCE_SHA256,override,notes:'Native publisher-unsigned installer for local testing. Embedded updater key/feed unchanged; no updater signature or update-feed publication.'},null,2));"
