@@ -39,6 +39,14 @@ jobs:
             Sticky-Sheet-0.2.29/src-tauri/target
           key: public-windows-${{ env.SOURCE_SHA256 }}
           restore-keys: public-windows-
+      - name: Reuse prior native build cache
+        shell: pwsh
+        run: |
+          $taskRoot = [IO.Path]::GetFullPath($env:GITHUB_WORKSPACE)
+          $taskOld = [IO.Path]::GetFullPath((Join-Path $taskRoot "Sticky-Sheet-0.2.28/src-tauri/target"))
+          $taskNew = [IO.Path]::GetFullPath((Join-Path $taskRoot "Sticky-Sheet-0.2.29/src-tauri/target"))
+          if (!$taskOld.StartsWith($taskRoot + "\") -or !$taskNew.StartsWith($taskRoot + "\")) { throw "Cache path outside workspace" }
+          if ((Test-Path -LiteralPath $taskOld) -and !(Test-Path -LiteralPath $taskNew)) { Move-Item -LiteralPath $taskOld -Destination $taskNew }
       - run: npm ci
       - run: node scripts/build-core.mjs
       - run: npm test
