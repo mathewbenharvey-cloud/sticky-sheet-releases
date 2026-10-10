@@ -12,8 +12,8 @@ jobs:
     timeout-minutes: 45
     env:
       CI: 'true'
-      SOURCE_SHA256: b027124f093432954277ff74ad1861a08ffcc096d2c60b7ff966af5050960f42
-      SOURCE_COMMIT: 65c55a6cfba521bdd7b0e87482ef23607864df28
+      SOURCE_SHA256: 6169d09ce543b9027803680fe25db04138e58229951b4a51e209eab23bca0584
+      SOURCE_COMMIT: 8f1cf7baca56dc0018c59273a19f7c5608e54d7c
     defaults:
       run:
         working-directory: Sticky-Sheet-0.2.29
@@ -25,7 +25,7 @@ jobs:
         working-directory: .
         shell: pwsh
         run: |
-          Invoke-WebRequest 'https://github.com/mathewbenharvey-cloud/sticky-sheet-releases/releases/download/v0.2.29-test/Sticky-Sheet-0.2.29-source.zip' -OutFile source.zip
+          Invoke-WebRequest 'https://github.com/mathewbenharvey-cloud/sticky-sheet-releases/releases/download/v0.2.29-test.2/Sticky-Sheet-0.2.29-source.zip' -OutFile source.zip
           if ((Get-FileHash -LiteralPath source.zip -Algorithm SHA256).Hash -ne $env:SOURCE_SHA256) { throw 'Source checksum mismatch' }
           tar -xf source.zip
           if ($LASTEXITCODE -ne 0) { throw 'Source extraction failed' }
