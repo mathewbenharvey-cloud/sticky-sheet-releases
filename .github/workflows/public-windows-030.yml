@@ -1,0 +1,106 @@
+name: Windows window-behavior testing build 0.2.30
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: windows-window-behavior-030
+  cancel-in-progress: false
+jobs:
+  windows-test:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    env:
+      CI: 'true'
+      SOURCE_SHA256: df0e217e937e7737b9367a31209072402c376d9acf175bbb052c346bd7917fbb
+      SOURCE_COMMIT: 3fe5aa266ce3f748ffac8dfcefd3fb5e1a8fd4e2
+    defaults:
+      run:
+        working-directory: Sticky-Sheet-0.2.30
+    steps:
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+      - name: Download and verify GPL source
+        working-directory: .
+        shell: pwsh
+        run: |
+          Invoke-WebRequest 'https://github.com/mathewbenharvey-cloud/sticky-sheet-releases/releases/download/v0.2.30-test.2/Sticky-Sheet-0.2.30-source.zip' -OutFile source.zip
+          if ((Get-FileHash -LiteralPath source.zip -Algorithm SHA256).Hash -ne $env:SOURCE_SHA256) { throw 'Source checksum mismatch' }
+          tar -xf source.zip
+          if ($LASTEXITCODE -ne 0) { throw 'Source extraction failed' }
+      - run: rustup default stable-msvc
+      - uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830
+        id: rust_cache
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            Sticky-Sheet-0.2.30/src-tauri/target
+          key: public-windows-${{ env.SOURCE_SHA256 }}
+          restore-keys: public-windows-
+      - name: Reuse prior native build cache
+        shell: pwsh
+        run: |
+          $taskRoot = [IO.Path]::GetFullPath($env:GITHUB_WORKSPACE)
+          $taskOld = [IO.Path]::GetFullPath((Join-Path $taskRoot "Sticky-Sheet-0.2.29/src-tauri/target"))
+          $taskNew = [IO.Path]::GetFullPath((Join-Path $taskRoot "Sticky-Sheet-0.2.30/src-tauri/target"))
+          if (!$taskOld.StartsWith($taskRoot + "\") -or !$taskNew.StartsWith($taskRoot + "\")) { throw "Cache path outside workspace" }
+          if ((Test-Path -LiteralPath $taskOld) -and !(Test-Path -LiteralPath $taskNew)) { Move-Item -LiteralPath $taskOld -Destination $taskNew }
+      - run: npm ci
+      - run: node scripts/build-core.mjs
+      - run: npm test
+      - run: npm run build
+      - run: node tests/conditional-tour-ui.mjs
+      - run: node tests/appearance-colors-ui.mjs
+      - run: node tests/sort-shortcut-ui.mjs
+      - run: node --import tsx tests/xlsx-fixture.ts
+      - name: Build testing installer without private signing secrets
+        run: |
+          node --input-type=module -e "import{readFileSync,writeFileSync,mkdirSync}from'node:fs';import assert from'node:assert/strict';const source=JSON.parse(readFileSync('SOURCE-MANIFEST.json'));assert.equal(source.commit,process.env.SOURCE_COMMIT);assert.equal(source.version,'0.2.30');const override={bundle:{createUpdaterArtifacts:false}};writeFileSync('testing-build.json',JSON.stringify(override));mkdirSync('test-results',{recursive:true});writeFileSync('test-results/build-info.json',JSON.stringify({sourceCommit:source.commit,sourceArchiveSHA256:process.env.SOURCE_SHA256,override,notes:'Native publisher-unsigned installer for local testing. Embedded updater key/feed unchanged; no updater signature or update-feed publication.'},null,2));"
+          node node_modules/@tauri-apps/cli/tauri.js build --config testing-build.json -- --locked
+          if ($LASTEXITCODE -ne 0) { throw 'Build failed' }
+      - run: cargo test --release --manifest-path src-tauri/Cargo.toml --locked
+      - uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830
+        if: steps.rust_cache.outputs.cache-hit != 'true'
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            Sticky-Sheet-0.2.30/src-tauri/target
+          key: public-windows-${{ env.SOURCE_SHA256 }}
+      - name: Install and test packaged application in disposable workspace
+        shell: pwsh
+        run: |
+          $installer = Get-ChildItem src-tauri/target/release/bundle/nsis/*.exe | Where-Object { $_.Name -like '*0.2.30*' } | Select-Object -First 1
+          if (!$installer) { throw 'Installer missing' }
+          $testAppDir = Join-Path $env:RUNNER_TEMP 'StickySheetAppearanceTest'
+          $install = Start-Process -FilePath $installer.FullName -ArgumentList '/S',"/D=$testAppDir" -WindowStyle Hidden -PassThru -Wait
+          if ($install.ExitCode -ne 0) { throw 'Installer failed' }
+          $env:TAURI_TEST_EXECUTABLE = Join-Path $testAppDir 'sticky-sheet-tauri.exe'
+          $policy = 'HKLM:\SOFTWARE\Policies\Microsoft\Edge\WebView2\AdditionalBrowserArguments'
+          New-Item -Path $policy -Force | Out-Null
+          New-ItemProperty -LiteralPath $policy -Name 'sticky-sheet-tauri.exe' -Value '--remote-debugging-port=19327' -PropertyType String -Force | Out-Null
+          $testExit = 1
+          try {
+            node tests/tauri-desktop.mjs
+            $testExit = $LASTEXITCODE
+            if ($testExit -eq 0) {
+              node tests/window-lifecycle-native.mjs
+              $testExit = $LASTEXITCODE
+            }
+          } finally {
+            Remove-ItemProperty -LiteralPath $policy -Name 'sticky-sheet-tauri.exe'
+            $uninstaller = Join-Path $testAppDir 'uninstall.exe'
+            if (Test-Path -LiteralPath $uninstaller) { Start-Process -FilePath $uninstaller -ArgumentList '/S' -WindowStyle Hidden -Wait }
+          }
+          exit $testExit
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        if: always()
+        with:
+          name: sticky-sheet-windows-window-behavior-030
+          path: |
+            Sticky-Sheet-0.2.30/src-tauri/target/release/bundle/nsis/*.exe
+            Sticky-Sheet-0.2.30/src-tauri/target/release/sticky-sheet-tauri.exe
+            Sticky-Sheet-0.2.30/test-results/**
+          retention-days: 14
