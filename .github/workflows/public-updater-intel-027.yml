@@ -1,0 +1,60 @@
+name: Published source updater validation 0.2.27
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: public-intel-updater-027
+  cancel-in-progress: false
+jobs:
+  intel-upgrade:
+    runs-on: macos-15-intel
+    timeout-minutes: 45
+    env:
+      CI: 'true'
+      MACOSX_DEPLOYMENT_TARGET: '14.0'
+      SOURCE_SHA256: eb23e39311f73b5593bfb925719360ce4d56958052eac85cc782d435cbeb1296
+    defaults:
+      run:
+        working-directory: Sticky-Sheet-0.2.27
+    steps:
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+      - name: Download and verify already published GPL source
+        working-directory: .
+        run: |
+          curl --fail --location --retry 2 'https://github.com/mathewbenharvey-cloud/sticky-sheet-releases/releases/download/v0.2.27-alpha/Sticky-Sheet-0.2.27-source.zip' --output source.zip
+          printf '%s  %s\n' "$SOURCE_SHA256" source.zip | shasum -a 256 -c -
+          ditto -x -k source.zip .
+      - run: rustup default stable
+      - run: npm ci
+      - run: node scripts/build-core.mjs
+      - name: Prepare app-only disposable updater bootstrap
+        run: |
+          node --input-type=module <<'NODE'
+          import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
+          import assert from 'node:assert/strict';
+          import {createHash} from 'node:crypto';
+          const manifest=JSON.parse(readFileSync('SOURCE-MANIFEST.json'));
+          assert.equal(manifest.commit,'8d71c27f0cbf3dbc27fd6b13371f0267f7493eea');
+          const path='scripts/build-update-bootstrap.mjs',before=readFileSync(path,'utf8');
+          const needle='writeFileSync("work-bootstrap.json", JSON.stringify({ version: "0.2.26" }));';
+          assert.ok(before.includes(needle));
+          const after=before.replace(needle,'writeFileSync("work-bootstrap.json", JSON.stringify({ version: "0.2.26", bundle: { targets: ["app"], createUpdaterArtifacts: false } }));');
+          writeFileSync(path,after);mkdirSync('test-results',{recursive:true});
+          const hash=s=>createHash('sha256').update(s).digest('hex');
+          writeFileSync('test-results/SOURCE-FIXTURE.json',JSON.stringify({sourceCommit:manifest.commit,sourceArchiveSHA256:process.env.SOURCE_SHA256,beforeSHA256:hash(before),afterSHA256:hash(after),bootstrapOverride:{version:'0.2.26',bundle:{targets:['app'],createUpdaterArtifacts:false}},notes:'Only the disposable bootstrap skips an unused DMG and its own updater artifact. The target remains the exact published, signed 0.2.27 updater package.'},null,2));
+          NODE
+      - name: Build disposable previous-version app
+        run: node scripts/build-update-bootstrap.mjs
+      - name: Exercise exact signed 0.2.27 upgrade and rejected updates
+        run: node tests/updater-native.mjs
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        if: always()
+        with:
+          name: public-updater-validation-intel-027
+          path: |
+            Sticky-Sheet-0.2.27/test-results/updater-*
+            Sticky-Sheet-0.2.27/test-results/SOURCE-FIXTURE.json
+          retention-days: 7
