@@ -1,18 +1,18 @@
 {
-  "version": "0.2.26",
-  "notes": "Check for Updates in Main Menu, optional startup checks, verified release downloads, and local backups before installation. Includes the consolidated draggable menus, small/large presets, Excel import/export, sorting, frozen headers and the Windows border fix.",
-  "pub_date": "2026-10-09T08:45:29.159Z",
+  "version": "0.2.27",
+  "notes": "Sort the selected column from the header, choose smallest or largest first, and see the direction in its first cell. Complete rows stay together, the header can be protected, and undo/redo restores the order and indicator. The compact sort menu is draggable and its shortcut can be hidden in Customize.",
+  "pub_date": "2026-10-10T01:31:31.995Z",
   "platforms": {
     "windows-x86_64": {
-      "url": "https://github.com/mathewbenharvey-cloud/sticky-sheet-releases/releases/download/v0.2.26-alpha/Sticky-Sheet-0.2.26-Alpha-Windows-x64-setup.exe",
+      "url": "https://github.com/mathewbenharvey-cloud/sticky-sheet-releases/releases/download/v0.2.27-alpha/Sticky-Sheet-0.2.27-Alpha-Windows-x64-setup.exe",
       "signature": "aW52YWxpZCBzaWduYXR1cmUgZml4dHVyZQ=="
     },
     "darwin-aarch64": {
-      "url": "https://github.com/mathewbenharvey-cloud/sticky-sheet-releases/releases/download/v0.2.26-alpha/Sticky-Sheet-0.2.26-Alpha-mac-arm64.app.tar.gz",
+      "url": "https://github.com/mathewbenharvey-cloud/sticky-sheet-releases/releases/download/v0.2.27-alpha/Sticky-Sheet-0.2.27-Alpha-mac-arm64.app.tar.gz",
       "signature": "aW52YWxpZCBzaWduYXR1cmUgZml4dHVyZQ=="
     },
     "darwin-x86_64": {
-      "url": "https://github.com/mathewbenharvey-cloud/sticky-sheet-releases/releases/download/v0.2.26-alpha/Sticky-Sheet-0.2.26-Alpha-mac-x64.app.tar.gz",
+      "url": "https://github.com/mathewbenharvey-cloud/sticky-sheet-releases/releases/download/v0.2.27-alpha/Sticky-Sheet-0.2.27-Alpha-mac-x64.app.tar.gz",
       "signature": "aW52YWxpZCBzaWduYXR1cmUgZml4dHVyZQ=="
     }
   }
