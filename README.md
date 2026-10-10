@@ -8,6 +8,8 @@ This repository distributes official release files. Each binary release includes
 
 The current Windows alpha is unsigned. It installs as Sticky Sheet Alpha with a separate saved workspace from the older Electron app. Read the release instructions before migrating your notes. The [Mac alpha](https://stickysheet.com/mac) is now available for Apple Silicon and Intel. Interactive acceptance testing is still in progress; it is not Apple-notarized.
 
-Use the explicitly named **Sticky-Sheet-0.2.26-source.zip** asset for the application source. GitHub’s automatic “Source code” snapshots contain this download repository’s README and license, not the application.
+Use the explicitly named **Sticky-Sheet-0.2.27-source.zip** asset for the application source. GitHub’s automatic “Source code” snapshots contain this download repository’s README and license, not the application.
 
 Version 0.2.26 adds Main Menu → Check for Updates, optional startup checks, explicit Install and Restart, and verified local pre-update backups. Earlier versions need one manual installation. Update signatures verify release authenticity; they do not remove Windows/macOS publisher warnings.
+
+Version 0.2.27 adds a selected-column sort shortcut, smallest/largest-first options, and a direction indicator in the first cell. Complete rows stay together and undo/redo restores the order.
